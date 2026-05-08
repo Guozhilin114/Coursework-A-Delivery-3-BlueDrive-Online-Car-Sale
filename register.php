@@ -290,7 +290,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="logo">CarMarket</div>
             <div class="nav-links">
                 <a href="search.php">Browse Cars</a>
-                <a href="upload.php">Upload Car</a>
+                <a href="add-car.php">Upload Car</a>
             </div>
         </header>
 
@@ -310,7 +310,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <?php if ($success) : ?>
                         <div style="color:green; margin-bottom:15px;">
-                            <p>Registration successful! You can now <a href="seller-login.html">login</a>.</p>
+                            <p>Registration successful! You can now <a href="seller-login.php">login</a>.</p>
                         </div>
                     <?php endif; ?>
 

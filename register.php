@@ -8,13 +8,10 @@ session_start();
 $errors = [];
 $success = false;
 
-// 处理表单提交
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // 【关键点】必须在任何数据库操作之前引入 db.php
     require_once __DIR__ . "/db.php";
 
-    // 接收并清洗数据
     $full_name = trim($_POST["name"]);
     $address   = trim($_POST["address"]);
     $phone     = trim($_POST["phone"]);
@@ -22,68 +19,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username  = trim($_POST["username"]);
     $password  = $_POST["password"];
 
-    // ===== 后端校验 =====
     if (!preg_match("/^[A-Za-z\s]+$/", $full_name)) {
         $errors[] = "Invalid full name.";
     }
-    // ... (此处省略其他校验，保持你原有的校验逻辑)
 
-    // ===== 检查用户名是否已存在 (此时 $conn 已定义) =====
-    if (empty($errors)) {
-        // 使用 prepared statement 防止 SQL 注入
-        $stmt = $conn->prepare("SELECT user_id FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $errors[] = "Username already exists.";
-        }
-        $stmt->close();
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Invalid email format.";
     }
 
-    // ===== 插入数据：先 users，后 sellers =====
+    if (!preg_match("/^1[3-9]\d{9}$/", $phone)) {
+        $errors[] = "Invalid Chinese phone number.";
+    }
+
+    if (strlen($password) < 6) {
+        $errors[] = "Password must be at least 6 characters.";
+    }
+
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("SELECT seller_id FROM sellers WHERE username = ?");
+            $stmt->execute([$username]);
+
+            if ($stmt->rowCount() > 0) {
+                $errors[] = "Username already exists.";
+            }
+        } catch (PDOException $e) {
+            $errors[] = "Database error occurred.";
+        }
+    }
+
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // 1. 插入 users 表
-        $stmtUser = $conn->prepare(
-            "INSERT INTO users (username, password, email) VALUES (?, ?, ?)"
-        );
-        $stmtUser->bind_param("sss", $username, $hashedPassword, $email);
-
-        if ($stmtUser->execute()) {
-            $user_id = $stmtUser->insert_id;
-            $stmtUser->close();
-
-            // 2. 插入 sellers 表
-            $stmtSeller = $conn->prepare(
+        try {
+            $stmt = $pdo->prepare(
                 "INSERT INTO sellers 
-                 (user_id, full_name, address, phone, email, username, password)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)"
+                 (full_name, address, phone, email, username, password)
+                 VALUES (?, ?, ?, ?, ?, ?)"
             );
-            $stmtSeller->bind_param(
-                "issssss",
-                $user_id,
+
+            $stmt->execute([
                 $full_name,
                 $address,
                 $phone,
                 $email,
                 $username,
                 $hashedPassword
-            );
+            ]);
 
-            if ($stmtSeller->execute()) {
-                $success = true;
-            } else {
-                $errors[] = "Failed to create seller profile.";
-            }
-            $stmtSeller->close();
-        } else {
+            $success = true;
+        } catch (PDOException $e) {
             $errors[] = "Registration failed. Please try again.";
         }
     }
-    // 关闭数据库连接
-    $conn->close();
 }
 ?>
 
@@ -301,12 +289,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <header>
             <div class="logo">CarMarket</div>
             <div class="nav-links">
-                <a href="search.html">Browse Cars</a>
-                <a href="upload.html">Upload Car</a>
+                <a href="search.php">Browse Cars</a>
+                <a href="upload.php">Upload Car</a>
             </div>
         </header>
 
-        <a href="seller-login.html" class="back-link">← Back to Login</a>
+        <a href="seller-login.php" class="back-link">← Back to Login</a>
 
         <div class="register-form">
             <h2>Seller Registration</h2>
@@ -375,7 +363,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <button type="submit" class="register-btn" id="submitBtn">Create Seller Account</button>
 
                     <div class="login-link">
-                        <p>Already have an account? <a href="seller-login.html">Login here</a></p>
+                        <p>Already have an account? <a href="seller-login.php">Login here</a></p>
                     </div>
                 </form>
             </div>

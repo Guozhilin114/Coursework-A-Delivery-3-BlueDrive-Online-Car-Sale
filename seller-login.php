@@ -138,6 +138,7 @@ button:hover {
     margin-bottom: 20px;
     text-align: center;
     font-weight: bold;
+    font-size: 14px;
 }
 
 .message.error {
@@ -196,9 +197,17 @@ button:hover {
                 <div class="message error">Please fill in all fields.</div>
             <?php endif; ?>
 
-            <?php if (isset($_GET['status']) && $_GET['status'] === 'received'): ?>
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'invalid'): ?>
+                <div class="message error">Invalid username/email or password.</div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'database'): ?>
+                <div class="message error">Database error. Please try again later.</div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['status']) && $_GET['status'] === 'verified'): ?>
                 <div class="message info">
-                    Version 1 test: login form submitted successfully. Database verification will be added later.
+                    Version 2 test: seller account verified from database. Session handling will be added later.
                 </div>
             <?php endif; ?>
 
@@ -216,7 +225,7 @@ button:hover {
                 <button type="submit">Login to Seller Account</button>
 
                 <div class="register-link">
-                    <p>New seller? <a href="register.html">Register here</a></p>
+                    <p>New seller? <a href="register.php">Register here</a></p>
                 </div>
             </form>
 

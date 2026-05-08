@@ -1,8 +1,12 @@
 <?php
-// db.php
-$conn = new mysqli("localhost", "root", "", "online_car_sale");
-$conn->set_charset("utf8mb4");
+try {
+    $dsn = "mysql:host=localhost;dbname=online_car_sale;charset=utf8mb4";
+    $username = "root";
+    $password = "";
 
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
+    $pdo = new PDO($dsn, $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
 }

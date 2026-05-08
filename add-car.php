@@ -1,173 +1,221 @@
 <?php
 session_start();
 
-// 未登录卖家不能访问
-if (!isset($_SESSION['seller_id'])) {
-    header("Location: seller-login.php");
-    exit;
+// Database connection - uses the same path as search.php
+require_once('../includes/db.php');
+
+// Handle seller ID: Use session if logged in, otherwise use default for testing
+if (isset($_SESSION['seller_id'])) {
+    $seller_id = $_SESSION['seller_id'];
+    $is_logged_in = true;
+} else {
+    // Default seller ID for testing (should match an ID in your `sellers` table)
+    $seller_id = 1;
+    $is_logged_in = false;
 }
 
-require_once __DIR__ . '/includes/db.php';
-
-$seller_id = $_SESSION['seller_id'];
 $success = false;
+$error_msg = '';
+$last_inserted_model = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // 基础字段
-    $brand        = trim($_POST['brand']);
-    $model        = trim($_POST['model']);
-    $year         = intval($_POST['year']);
-    $mileage      = trim($_POST['mileage']);
-    $fuel_type    = trim($_POST['fuel_type']);
+    // Receive and sanitize form data
+    $brand = trim($_POST['brand']);
+    $model = trim($_POST['model']);
+    $year = intval($_POST['year']);
+    $mileage = trim($_POST['mileage']);
+    $fuel_type = trim($_POST['fuel_type']);
     $transmission = trim($_POST['transmission']);
-    $colour       = trim($_POST['colour']);
-    $location     = trim($_POST['location']);
-    $price        = floatval($_POST['price']);
-    $description  = trim($_POST['description']);
+    $colour = trim($_POST['colour']);
+    $location = trim($_POST['location']);
+    $price = floatval($_POST['price']);
+    $description = trim($_POST['description']);
 
-    // 图片上传
+    // Handle image upload
     $image_path = '';
-    if (!empty($_FILES['carImage']['tmp_name'])) {
+    if (isset($_FILES['carImage']) && $_FILES['carImage']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = __DIR__ . '/assets/uploads/';
+        // Ensure upload directory exists
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
 
-        $filename = uniqid() . '_' . basename($_FILES['carImage']['name']);
-        $target   = $uploadDir . $filename;
+        // Generate unique filename
+        $fileExtension = pathinfo($_FILES['carImage']['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('car_') . '.' . strtolower($fileExtension);
+        $target = $uploadDir . $filename;
 
+        // Move uploaded file
         if (move_uploaded_file($_FILES['carImage']['tmp_name'], $target)) {
             $image_path = 'assets/uploads/' . $filename;
+        } else {
+            $error_msg = "Image upload failed. Please try again.";
         }
+    } else {
+        $error_msg = "Please select a car image.";
     }
 
-    // 插入 cars 表（完全对齐 schema.sql）
-    $sql = "INSERT INTO cars (
-                seller_id, brand, model, year, mileage,
-                fuel_type, transmission, colour,
-                location, price, image_path, description
-            ) VALUES (
-                :seller_id, :brand, :model, :year, :mileage,
-                :fuel_type, :transmission, :colour,
-                :location, :price, :image_path, :description
-            )";
+    // If no errors, insert into database
+    if (empty($error_msg)) {
+        $sql = "INSERT INTO cars (
+                    seller_id, brand, model, year, mileage,
+                    fuel_type, transmission, colour,
+                    location, price, image_path, description
+                ) VALUES (
+                    :seller_id, :brand, :model, :year, :mileage,
+                    :fuel_type, :transmission, :colour,
+                    :location, :price, :image_path, :description
+                )";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':seller_id'   => $seller_id,
-        ':brand'       => $brand,
-        ':model'       => $model,
-        ':year'        => $year,
-        ':mileage'     => $mileage,
-        ':fuel_type'   => $fuel_type,
-        ':transmission'=> $transmission,
-        ':colour'      => $colour,
-        ':location'    => $location,
-        ':price'       => $price,
-        ':image_path'  => $image_path,
-        ':description' => $description
-    ]);
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':seller_id'   => $seller_id,
+                ':brand'       => $brand,
+                ':model'       => $model,
+                ':year'        => $year,
+                ':mileage'     => $mileage,
+                ':fuel_type'   => $fuel_type,
+                ':transmission'=> $transmission,
+                ':colour'      => $colour,
+                ':location'    => $location,
+                ':price'       => $price,
+                ':image_path'  => $image_path,
+                ':description' => $description
+            ]);
 
-    $success = true;
+            $last_inserted_model = $model;
+            $success = true;
+        } catch (PDOException $e) {
+            $error_msg = "Error saving data to database: " . $e->getMessage();
+        }
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Upload Car</title>
-<style>
-    body { font-family:Arial; background:#f0f2f5; padding:20px; }
-    .container { max-width:700px; margin:auto; background:#fff; padding:30px; border-radius:8px; }
-    .form-group { margin-bottom:15px; }
-    label { font-weight:bold; display:block; margin-bottom:5px; }
-    input, select, textarea { width:100%; padding:10px; }
-    .btn { background:#1a73e8; color:#fff; border:none; padding:12px; width:100%; cursor:pointer; }
-    .success { background:#d4edda; padding:10px; text-align:center; margin-bottom:15px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Your Car - Used Car Marketplace</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f0f2f5; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #eee; }
+        .alert { padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        input:focus, select:focus, textarea:focus { border-color: #1a73e8; outline: none; box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+        .submit-btn { background-color: #1a73e8; color: white; border: none; padding: 15px; width: 100%; border-radius: 4px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .submit-btn:hover { background-color: #0d5bb5; }
+        .action-links { margin-top: 15px; text-align: center; }
+        .action-links a { color: #1a73e8; text-decoration: none; margin: 0 10px; }
+        .action-links a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Upload Your Car to the Marketplace</h2>
 
-<div class="container">
-    <h2>Upload Your Car</h2>
+        <?php if (!$is_logged_in): ?>
+            <div class="alert alert-info">
+                <strong>Note:</strong> You are not logged in. This upload will be associated with a default seller account for testing. <a href="seller-login.php">Click here to log in as a seller</a>.
+            </div>
+        <?php endif; ?>
 
-    <?php if ($success): ?>
-        <div class="success">
-            Car uploaded successfully!
-            <a href="search.php">Go to Search Page</a>
+        <?php if (!empty($error_msg)): ?>
+            <div class="alert alert-error">
+                <strong>Error:</strong> <?php echo htmlspecialchars($error_msg); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($success): ?>
+            <div class="alert alert-success">
+                <strong>Success!</strong> Your car "<strong><?php echo htmlspecialchars($last_inserted_model); ?></strong>" has been uploaded successfully.
+                <div class="action-links">
+                    <a href="search.php?model=<?php echo urlencode($last_inserted_model); ?>">🔍 View it in search results</a>
+                    <a href="search.php">Browse all cars</a>
+                    <a href="add-car.php">Upload another car</a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="brand">Brand *</label>
+                <input type="text" id="brand" name="brand" placeholder="e.g., Toyota, Honda, BMW" required>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model *</label>
+                <input type="text" id="model" name="model" placeholder="e.g., Camry, Civic, 3 Series" required>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Manufacturing Year *</label>
+                <input type="number" id="year" name="year" min="1900" max="2026" placeholder="e.g., 2020" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mileage">Mileage</label>
+                <input type="text" id="mileage" name="mileage" placeholder="e.g., 45,000 km">
+            </div>
+
+            <div class="form-group">
+                <label for="fuel_type">Fuel Type</label>
+                <select id="fuel_type" name="fuel_type">
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Electric">Electric</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="transmission">Transmission</label>
+                <select id="transmission" name="transmission">
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="colour">Colour</label>
+                <input type="text" id="colour" name="colour" placeholder="e.g., Silver, Black, Blue">
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" placeholder="e.g., Lingshui, Haikou">
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price (USD) *</label>
+                <input type="number" id="price" name="price" step="0.01" min="0" placeholder="e.g., 15000.00" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Describe your car's condition, features, and any other important details..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="carImage">Car Image *</label>
+                <input type="file" id="carImage" name="carImage" accept="image/*" required>
+                <p style="font-size: 14px; color: #666; margin-top:5px;">Please upload a clear photo of the car (JPEG, PNG, etc.).</p>
+            </div>
+
+            <button type="submit" class="submit-btn">🚗 Upload Car to Marketplace</button>
+        </form>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #777;">
+            <p>After uploading, your car will be immediately listed on the <a href="search.php">Search Page</a> for all buyers to see.</p>
         </div>
-    <?php endif; ?>
-
-    <form method="post" enctype="multipart/form-data">
-
-        <div class="form-group">
-            <label>Brand</label>
-            <input type="text" name="brand" required>
-        </div>
-
-        <div class="form-group">
-            <label>Model</label>
-            <input type="text" name="model" required>
-        </div>
-
-        <div class="form-group">
-            <label>Year</label>
-            <input type="number" name="year" required>
-        </div>
-
-        <div class="form-group">
-            <label>Mileage</label>
-            <input type="text" name="mileage" placeholder="e.g., 45,000 km">
-        </div>
-
-        <div class="form-group">
-            <label>Fuel Type</label>
-            <select name="fuel_type">
-                <option>Petrol</option>
-                <option>Diesel</option>
-                <option>Electric</option>
-                <option>Hybrid</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Transmission</label>
-            <select name="transmission">
-                <option>Automatic</option>
-                <option>Manual</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Colour</label>
-            <input type="text" name="colour">
-        </div>
-
-        <div class="form-group">
-            <label>Location</label>
-            <input type="text" name="location">
-        </div>
-
-        <div class="form-group">
-            <label>Price</label>
-            <input type="number" name="price" step="0.01" required>
-        </div>
-
-        <div class="form-group">
-            <label>Description</label>
-            <textarea name="description"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Car Image</label>
-            <input type="file" name="carImage" accept="image/*" required>
-        </div>
-
-        <button class="btn" type="submit">Upload Car</button>
-    </form>
-</div>
-
+    </div>
 </body>
 </html>

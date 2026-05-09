@@ -14,10 +14,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 INSERT INTO sellers 
 (seller_id, full_name, address, phone, email, username, password)
 VALUES
-(1, 'Li Wei', 'Tianhe District, Guangzhou, Guangdong', '13800138001', 'liwei.seller@example.com', 'liwei_seller', '123456'),
-(2, 'Chen Ming', 'Jiyang District, Sanya, Hainan', '13800138002', 'chen.auto@example.com', 'chen_auto', '123456'),
-(3, 'Wang Jun', 'Heping District, Shenyang, Liaoning', '13800138003', 'wang.motors@example.com', 'wang_motors', '123456'),
-(4, 'Zhao Yuchen', 'Pudong New Area, Shanghai', '13800138004', 'zhao.premium@example.com', 'zhao_premium', '123456');
+(1, 'Li Wei', 'Tianhe District, Guangzhou, Guangdong', '13800138001', 'liwei.seller@example.com', 'liwei_seller', '$2y$10$lIaKtZH/jo/5vNCnC27bv.OFi99mSrLiiFnwy4gBmxzlUbX4WQ8WS'),
+(2, 'Chen Ming', 'Jiyang District, Sanya, Hainan', '13800138002', 'chen.auto@example.com', 'chen_auto', '$2y$10$lIaKtZH/jo/5vNCnC27bv.OFi99mSrLiiFnwy4gBmxzlUbX4WQ8WS'),
+(3, 'Wang Jun', 'Heping District, Shenyang, Liaoning', '13800138003', 'wang.motors@example.com', 'wang_motors', '$2y$10$lIaKtZH/jo/5vNCnC27bv.OFi99mSrLiiFnwy4gBmxzlUbX4WQ8WS'),
+(4, 'Zhao Yuchen', 'Pudong New Area, Shanghai', '13800138004', 'zhao.premium@example.com', 'zhao_premium', '$2y$10$lIaKtZH/jo/5vNCnC27bv.OFi99mSrLiiFnwy4gBmxzlUbX4WQ8WS');
 
 INSERT INTO cars
 (car_id, seller_id, brand, model, year, mileage, fuel_type, transmission, colour, location, price, image_path, description)

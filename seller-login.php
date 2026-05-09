@@ -1,3 +1,11 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isLoggedIn = isset($_SESSION['seller_logged_in']) && $_SESSION['seller_logged_in'] === true;
+$sellerName = $_SESSION['seller_name'] ?? '';
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -110,7 +118,8 @@ input:focus {
     border-color: blue;
 }
 
-button {
+button,
+.action-link {
     background: blue;
     color: white;
     padding: 16px;
@@ -121,9 +130,13 @@ button {
     cursor: pointer;
     font-size: 18px;
     font-weight: bold;
+    display: block;
+    text-align: center;
+    text-decoration: none;
 }
 
-button:hover {
+button:hover,
+.action-link:hover {
     background: darkblue;
 }
 
@@ -149,6 +162,11 @@ button:hover {
 .message.info {
     background: #e8f0ff;
     color: #003c8f;
+}
+
+.message.success {
+    background: #e6ffe6;
+    color: #116b11;
 }
 
 @media (max-width: 600px) {
@@ -205,29 +223,45 @@ button:hover {
                 <div class="message error">Database error. Please try again later.</div>
             <?php endif; ?>
 
-            <?php if (isset($_GET['status']) && $_GET['status'] === 'verified'): ?>
-                <div class="message info">
-                    Version 2 test: seller account verified from database. Session handling will be added later.
+            <?php if (isset($_GET['status']) && $_GET['status'] === 'session_created'): ?>
+                <div class="message success">
+                    Version 3 test: seller session has been created successfully.
                 </div>
             <?php endif; ?>
 
-            <form action="login_process.php" method="POST">
-                <div class="form-item">
-                    <label>Username or Email *</label>
-                    <input type="text" name="login" placeholder="Enter username or email" required>
+            <?php if ($isLoggedIn): ?>
+
+                <div class="message success">
+                    You are logged in as <?php echo htmlspecialchars($sellerName); ?>.
                 </div>
 
-                <div class="form-item">
-                    <label>Password *</label>
-                    <input type="password" name="password" placeholder="Enter your password" required>
+                <a class="action-link" href="seller-login.php">Stay on Seller Login Page</a>
+
+                <div class="message info">
+                    Logout and protected seller page access will be added in the final version.
                 </div>
 
-                <button type="submit">Login to Seller Account</button>
+            <?php else: ?>
 
-                <div class="register-link">
-                    <p>New seller? <a href="register.php">Register here</a></p>
-                </div>
-            </form>
+                <form action="login_process.php" method="POST">
+                    <div class="form-item">
+                        <label>Username or Email *</label>
+                        <input type="text" name="login" placeholder="Enter username or email" required>
+                    </div>
+
+                    <div class="form-item">
+                        <label>Password *</label>
+                        <input type="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit">Login to Seller Account</button>
+
+                    <div class="register-link">
+                        <p>New seller? <a href="register.php">Register here</a></p>
+                    </div>
+                </form>
+
+            <?php endif; ?>
 
         </div>
     </div>

@@ -55,11 +55,11 @@ body {
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: blue;
-    margin-bottom: 10px;
+    width: 150px;
+    height: auto;
+    display: block;
 }
+
 
 .nav-links a {
     color: blue;
@@ -87,6 +87,8 @@ h2 {
     border-radius: 12px;
     box-shadow: 0 4px 10px #ccc;
 }
+
+
 
 .form-inner {
     max-width: 400px;
@@ -206,10 +208,10 @@ button:hover,
 <div class="container">
 
     <div class="header">
-        <p class="logo">CarMarket</p>
+        <img src="../assets/images/logo.png" alt="BlueDrive Logo" class="logo">
         <div class="nav-links">
             <a href="search.php">Browse Cars</a>
-            <a href="upload.php">Upload Car</a>
+            <a href="add-car.php">Upload Car</a>
         </div>
     </div>
 

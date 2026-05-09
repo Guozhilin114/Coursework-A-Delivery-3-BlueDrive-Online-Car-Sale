@@ -140,6 +140,15 @@ button:hover,
     background: darkblue;
 }
 
+.logout-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: blue;
+    text-decoration: none;
+    font-weight: bold;
+}
+
 .register-link {
     text-align: center;
     margin-top: 20px;
@@ -199,12 +208,12 @@ button:hover,
     <div class="header">
         <p class="logo">CarMarket</p>
         <div class="nav-links">
-            <a href="search.html">Browse Cars</a>
-            <a href="upload.html">Upload Car</a>
+            <a href="search.php">Browse Cars</a>
+            <a href="upload.php">Upload Car</a>
         </div>
     </div>
 
-    <a href="search.html" class="back-link">← Back to Search</a>
+    <a href="search.php" class="back-link">← Back to Search</a>
 
     <h2>Seller Login</h2>
 
@@ -223,23 +232,32 @@ button:hover,
                 <div class="message error">Database error. Please try again later.</div>
             <?php endif; ?>
 
-            <?php if (isset($_GET['status']) && $_GET['status'] === 'session_created'): ?>
-                <div class="message success">
-                    Version 3 test: seller session has been created successfully.
-                </div>
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'login_required'): ?>
+                <div class="message error">Please log in before accessing the seller page.</div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['status']) && $_GET['status'] === 'logged_out'): ?>
+                <div class="message info">You have logged out successfully.</div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['status']) && $_GET['status'] === 'logged_in'): ?>
+                <div class="message success">Login successful. Seller session has been created.</div>
             <?php endif; ?>
 
             <?php if ($isLoggedIn): ?>
-
                 <div class="message success">
                     You are logged in as <?php echo htmlspecialchars($sellerName); ?>.
                 </div>
 
-                <a class="action-link" href="seller-login.php">Stay on Seller Login Page</a>
+                <?php if (file_exists(__DIR__ . '/add-car.php')): ?>
+                    <a class="action-link" href="add-car.php">Go to Add Car Page</a>
+                <?php elseif (file_exists(__DIR__ . '/upload.php')): ?>
+                    <a class="action-link" href="upload.php">Go to Upload Car Page</a>
+                <?php else: ?>
+                    <div class="message info">Add Car / Upload page is not available yet.</div>
+                <?php endif; ?>
 
-                <div class="message info">
-                    Logout and protected seller page access will be added in the final version.
-                </div>
+                <a class="logout-link" href="logout.php">Logout</a>
 
             <?php else: ?>
 

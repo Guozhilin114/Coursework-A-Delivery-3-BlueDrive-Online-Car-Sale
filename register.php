@@ -10,7 +10,7 @@ $success = false;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    require_once __DIR__ . "/db.php";
+    require_once __DIR__ . "/../includes/db.php";
 
     $full_name = trim($_POST["name"]);
     $address   = trim($_POST["address"]);
@@ -18,23 +18,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email     = trim($_POST["email"]);
     $username  = trim($_POST["username"]);
     $password  = $_POST["password"];
+    $confirmPassword = $_POST["confirmPassword"];
 
+    // Name: letters & spaces
     if (!preg_match("/^[A-Za-z\s]+$/", $full_name)) {
         $errors[] = "Invalid full name.";
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format.";
+    // Address: letters, numbers, spaces
+    if (!preg_match("/^[A-Za-z0-9\s]+$/", $address)) {
+        $errors[] = "Invalid address format.";
     }
 
+    // Phone
     if (!preg_match("/^1[3-9]\d{9}$/", $phone)) {
         $errors[] = "Invalid Chinese phone number.";
     }
 
-    if (strlen($password) < 6) {
-        $errors[] = "Password must be at least 6 characters.";
+    // Email
+    if (!preg_match("/^[^\s@]+@[^\s@]+\.(com|cn)$/i", $email)) {
+        $errors[] = "Invalid email format (must end with .com or .cn).";
     }
 
+    // Username: at least 6 chars, letters & numbers only
+    if (!preg_match("/^[A-Za-z0-9]{6,}$/", $username)) {
+        $errors[] = "Username must be at least 6 characters (letters and numbers only).";
+    }
+
+    // Password length unified
+    if (strlen($password) < 8) {
+        $errors[] = "Password must be at least 8 characters.";
+    }
+
+    // Confirm password
+    if ($password !== $confirmPassword) {
+        $errors[] = "Passwords do not match.";
+    }
+
+    // Username uniqueness check
     if (empty($errors)) {
         try {
             $stmt = $pdo->prepare("SELECT seller_id FROM sellers WHERE username = ?");
@@ -48,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
+    // Insert user
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
@@ -290,7 +312,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="logo">CarMarket</div>
             <div class="nav-links">
                 <a href="search.php">Browse Cars</a>
-                <a href="add-car.php">Upload Car</a>
+                <a href="add-car.php">Add Car</a>
             </div>
         </header>
 
@@ -460,7 +482,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // ===== Password: at least 6 letters or numbers =====
             let passwordInput = document.getElementById("password").value;
-            let passwordRegex = /^[A-Za-z0-9]{6,}$/;
+            let passwordRegex = /^[A-Za-z0-9]{8,}$/;
 
             if (passwordRegex.test(passwordInput)) {
                 document.getElementById("password-error").style.display = "none";

@@ -210,7 +210,6 @@ function h($value) {
                 <a href="search.php">Search Cars</a>
 
                 <?php if (isset($_SESSION["seller_id"])): ?>
-                    <a href="seller-page.php">Seller Page</a>
                     <a href="add-car.php">Add Car</a>
                     <a href="logout.php">Logout</a>
                 <?php else: ?>

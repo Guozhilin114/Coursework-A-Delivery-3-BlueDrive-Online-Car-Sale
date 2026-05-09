@@ -1,10 +1,43 @@
+<?php
+session_start();
+
+$developers = [
+    [
+        "name" => "Zhu Tongchen",
+        "student_id" => "250001572",
+        "email" => "jp2024213885@qmul.ac.uk",
+        "contribution" => "add-car.php, car insert, image upload, seller_id foreign key"
+    ],
+    [
+        "name" => "Guo Zhilin",
+        "student_id" => "250001642",
+        "email" => "jp2024213866@qmul.ac.uk",
+        "contribution" => "database structure, search.php, car-detail.php, final integration"
+    ],
+    [
+        "name" => "Liu Jiasheng",
+        "student_id" => "250001675",
+        "email" => "jp2024213875@qmul.ac.uk",
+        "contribution" => "index.php, register.php, seller registration"
+    ],
+    [
+        "name" => "Zhang Chenye",
+        "student_id" => "250001712",
+        "email" => "jp2024213874@qmul.ac.uk",
+        "contribution" => "seller-login.php, session handling, logout.php, developers.php"
+    ]
+];
+
+function h($value) {
+    return htmlspecialchars($value, ENT_QUOTES, "UTF-8");
+}
+?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <!-- Character encoding to prevent garbled text -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Information</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Developer Information - BlueDrive</title>
 
     <style>
         * {
@@ -14,47 +47,60 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Ensure media elements scale responsively without overflow */
-        img, video, iframe { max-width: 100%; height: auto; }
-
-        /* Fluid typography: scales font-size between mobile, tablet, and desktop */
-        html { font-size: clamp(1rem, 0.75rem + 0.5vw, 1.25rem); }
-
-        /* Adaptive grid: auto-adjusts columns based on available screen space */
-        .responsive-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        html {
+            font-size: clamp(1rem, 0.75rem + 0.5vw, 1.25rem);
+        }
 
         body {
             background-color: #eee;
-            /* Changed background color */
             padding: 40px 20px;
-            /* Keep content from touching the edge */
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             width: 100%;
             margin: 0 auto;
         }
 
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px #ccc;
+        }
+
+        .logo {
+            width: 130px;
+            height: auto;
+        }
+
+        .nav-links a {
+            color: #0056d6;
+            text-decoration: none;
+            margin-left: 18px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
         h1 {
             color: black;
-            /* Darkened title color */
             text-align: center;
-            /* Center the title */
             margin-bottom: 30px;
-            font-size: 28px;
+            font-size: 30px;
         }
 
         table {
-            border: 1px solid black;
             border-collapse: collapse;
-            /* Merge table borders */
             width: 100%;
-            /* Make table full width */
             background-color: white;
             border-radius: 8px;
             overflow: hidden;
@@ -62,16 +108,14 @@
         }
 
         th, td {
-            border: none;
             padding: 16px;
-            /* Increased padding */
+            text-align: left;
+            vertical-align: top;
         }
 
         th {
-            background-color: blue;
+            background-color: #0056d6;
             color: white;
-            /* Header background color */
-            text-align: left;
             font-weight: 600;
         }
 
@@ -97,64 +141,116 @@
         }
 
         .email {
-            color: blue;
+            color: #0056d6;
         }
 
-        a {
-            color: blue;
+        .workflow-box {
+            margin-top: 30px;
+            background: white;
+            padding: 22px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px #ccc;
+            line-height: 1.6;
+        }
+
+        .workflow-box h2 {
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .back-link {
+            color: #0056d6;
             text-decoration: none;
-            /* Remove link underline */
             display: inline-block;
             margin-top: 30px;
             text-align: center;
             width: 100%;
             font-size: 16px;
+            font-weight: bold;
         }
 
-        a:hover {
+        .back-link:hover {
             text-decoration: underline;
-            /* Show underline on hover */
+        }
+
+        @media (max-width: 700px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                text-align: center;
+            }
+
+            .nav-links a {
+                display: inline-block;
+                margin: 6px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Web page main content -->
+
+        <div class="top-nav">
+            <img src="../assets/images/logo.png" alt="BlueDrive Logo" class="logo">
+
+            <div class="nav-links">
+                <a href="index.php">Home</a>
+                <a href="search.php">Search Cars</a>
+
+                <?php if (isset($_SESSION["seller_id"])): ?>
+                    <a href="seller-page.php">Seller Page</a>
+                    <a href="add-car.php">Add Car</a>
+                    <a href="logout.php">Logout</a>
+                <?php else: ?>
+                    <a href="register.php">Register</a>
+                    <a href="seller-login.php">Seller Login</a>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <h1>Developer Information</h1>
 
-        <!-- Developer information table -->
         <table>
             <tr>
                 <th>Name</th>
                 <th>Student ID</th>
                 <th>Email</th>
+                <th>Contribution</th>
             </tr>
-            <tr>
-                <td class="name">Zhutongchen</td>
-                <td class="student-id">250001572</td>
-                <td class="email">jp2024213885@qmul.ac.uk</td>
-            </tr>
-            <tr>
-                <td class="name">Guozhilin</td>
-                <td class="student-id">250001642</td>
-                <td class="email">jp2024213866@qmul.ac.uk</td>
-            </tr>
-            <tr>
-                <td class="name">Liujiashen</td>
-                <td class="student-id">250001675</td>
-                <td class="email">jp2024213875@qmul.ac.uk</td>
-            </tr>
-            <tr>
-                <td class="name">Zhangchenye</td>
-                <td class="student-id">250001712</td>
-                <td class="email">jp2024213874@qmul.ac.uk</td>
-            </tr>
+
+            <?php foreach ($developers as $developer): ?>
+                <tr>
+                    <td class="name"><?= h($developer["name"]) ?></td>
+                    <td class="student-id"><?= h($developer["student_id"]) ?></td>
+                    <td class="email"><?= h($developer["email"]) ?></td>
+                    <td><?= h($developer["contribution"]) ?></td>
+                </tr>
+            <?php endforeach; ?>
         </table>
 
-        <!-- Back link -->
-        <a href="search.html">← Back to Car Marketplace</a>
-    </div>
+        <div class="workflow-box">
+            <h2>GitHub Workflow</h2>
+            <p>
+                This project follows the required Delivery 3 GitHub workflow. The team uses
+                a main branch, a develop branch, and individual feature branches. Each member
+                works on their own upgraded PHP page and merges their work through pull requests.
+            </p>
+        </div>
 
+        <a href="search.php" class="back-link">← Back to Car Marketplace</a>
+
+    </div>
 </body>
 </html>

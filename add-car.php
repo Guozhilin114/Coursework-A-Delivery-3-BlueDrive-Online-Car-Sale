@@ -1,61 +1,69 @@
 <?php
 session_start();
 
-// Database connection - uses the same path as search.php
-require_once('../includes/db.php');
+require_once __DIR__ . "/../includes/db.php";
 
-// Handle seller ID: Use session if logged in, otherwise use default for testing
-if (isset($_SESSION['seller_id'])) {
-    $seller_id = $_SESSION['seller_id'];
-    $is_logged_in = true;
-} else {
-    // Default seller ID for testing (should match an ID in your `sellers` table)
-    $seller_id = 1;
-    $is_logged_in = false;
+if (!isset($_SESSION['seller_id'])) {
+    header("Location: seller-login.php?error=login_required");
+    exit;
 }
+
+$seller_id = $_SESSION['seller_id'];
 
 $success = false;
 $error_msg = '';
 $last_inserted_model = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Receive and sanitize form data
-    $brand = trim($_POST['brand']);
-    $model = trim($_POST['model']);
-    $year = intval($_POST['year']);
-    $mileage = trim($_POST['mileage']);
-    $fuel_type = trim($_POST['fuel_type']);
-    $transmission = trim($_POST['transmission']);
-    $colour = trim($_POST['colour']);
-    $location = trim($_POST['location']);
-    $price = floatval($_POST['price']);
-    $description = trim($_POST['description']);
+    $brand = trim($_POST['brand'] ?? '');
+    $model = trim($_POST['model'] ?? '');
+    $year = intval($_POST['year'] ?? 0);
+    $mileage = trim($_POST['mileage'] ?? '');
+    $fuel_type = trim($_POST['fuel_type'] ?? '');
+    $transmission = trim($_POST['transmission'] ?? '');
+    $colour = trim($_POST['colour'] ?? '');
+    $location = trim($_POST['location'] ?? '');
+    $price = floatval($_POST['price'] ?? 0);
+    $description = trim($_POST['description'] ?? '');
 
-    // Handle image upload
-    $image_path = '';
-    if (isset($_FILES['carImage']) && $_FILES['carImage']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = __DIR__ . '/assets/uploads/';
-        // Ensure upload directory exists
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        // Generate unique filename
-        $fileExtension = pathinfo($_FILES['carImage']['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('car_') . '.' . strtolower($fileExtension);
-        $target = $uploadDir . $filename;
-
-        // Move uploaded file
-        if (move_uploaded_file($_FILES['carImage']['tmp_name'], $target)) {
-            $image_path = 'assets/uploads/' . $filename;
-        } else {
-            $error_msg = "Image upload failed. Please try again.";
-        }
-    } else {
-        $error_msg = "Please select a car image.";
+    if ($brand === '' || $model === '') {
+        $error_msg = "Brand and model are required.";
+    } elseif ($year < 1900 || $year > 2026) {
+        $error_msg = "Please enter a valid year.";
+    } elseif ($price <= 0) {
+        $error_msg = "Please enter a valid price.";
     }
 
-    // If no errors, insert into database
+    $image_path = '';
+
+    if (empty($error_msg)) {
+        if (isset($_FILES['carImage']) && $_FILES['carImage']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../uploads/car_images/';
+
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $fileExtension = strtolower(pathinfo($_FILES['carImage']['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                $error_msg = "Only JPG, JPEG, PNG and WEBP images are allowed.";
+            } else {
+                $filename = uniqid('car_') . '.' . $fileExtension;
+                $target = $uploadDir . $filename;
+
+                if (move_uploaded_file($_FILES['carImage']['tmp_name'], $target)) {
+                    $image_path = '../uploads/car_images/' . $filename;
+                } else {
+                    $error_msg = "Image upload failed. Please try again.";
+                }
+            }
+        } else {
+            $error_msg = "Please select a car image.";
+        }
+    }
+
     if (empty($error_msg)) {
         $sql = "INSERT INTO cars (
                     seller_id, brand, model, year, mileage,
@@ -70,28 +78,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                ':seller_id'   => $seller_id,
-                ':brand'       => $brand,
-                ':model'       => $model,
-                ':year'        => $year,
-                ':mileage'     => $mileage,
-                ':fuel_type'   => $fuel_type,
-                ':transmission'=> $transmission,
-                ':colour'      => $colour,
-                ':location'    => $location,
-                ':price'       => $price,
-                ':image_path'  => $image_path,
-                ':description' => $description
+                ':seller_id'    => $seller_id,
+                ':brand'        => $brand,
+                ':model'        => $model,
+                ':year'         => $year,
+                ':mileage'      => $mileage,
+                ':fuel_type'    => $fuel_type,
+                ':transmission' => $transmission,
+                ':colour'       => $colour,
+                ':location'     => $location,
+                ':price'        => $price,
+                ':image_path'   => $image_path,
+                ':description'  => $description
             ]);
 
             $last_inserted_model = $model;
             $success = true;
         } catch (PDOException $e) {
-            $error_msg = "Error saving data to database: " . $e->getMessage();
+            $error_msg = "Error saving data to database.";
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,12 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="container">
         <h2>Upload Your Car to the Marketplace</h2>
-
-        <?php if (!$is_logged_in): ?>
-            <div class="alert alert-info">
-                <strong>Note:</strong> You are not logged in. This upload will be associated with a default seller account for testing. <a href="seller-login.php">Click here to log in as a seller</a>.
-            </div>
-        <?php endif; ?>
 
         <?php if (!empty($error_msg)): ?>
             <div class="alert alert-error">

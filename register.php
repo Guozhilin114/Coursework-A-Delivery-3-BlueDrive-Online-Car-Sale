@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 
 $errors = [];
@@ -103,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Registration - Used Car Marketplace</title>
+    <title>Seller Registration - Blue Drive Car Market</title>
     <style>
         * {
             margin: 0;
@@ -111,8 +107,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-
-        /*Don't ask me what color you want. Search online by yourself and fill it in the color section.*/
 
         body {
             background-color: #f0f2f5;
@@ -309,7 +303,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
     <div class="container">
         <header>
-            <div class="logo">CarMarket</div>
+            <div class="logo">Blue Drive Car Market</div>
             <div class="nav-links">
                 <a href="search.php">Browse Cars</a>
                 <a href="add-car.php">Add Car</a>

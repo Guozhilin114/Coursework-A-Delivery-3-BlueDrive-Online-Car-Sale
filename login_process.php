@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../includes/db.php';
 
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: seller-login.php");
     exit();
@@ -47,14 +48,17 @@ try {
     $_SESSION['seller_name'] = $seller['full_name'];
     $_SESSION['seller_email'] = $seller['email'];
 
-    /*
-    Version 3:
-    Seller account is verified from the database.
-    Seller session is created after successful login.
-    Logout, auth_check, and final redirect will be added in the next version.
-    */
+    if (file_exists(__DIR__ . '/add-car.php')) {
+        header("Location: add-car.php");
+        exit();
+    }
 
-    header("Location: seller-login.php?status=session_created");
+    if (file_exists(__DIR__ . '/upload.php')) {
+        header("Location: upload.php");
+        exit();
+    }
+
+    header("Location: seller-login.php?status=logged_in");
     exit();
 
 } catch (PDOException $e) {

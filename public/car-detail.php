@@ -38,7 +38,7 @@ function displayPrice($price) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Details - Used Car Marketplace</title>
+    <title>Car Details - Blue Drive Car Market</title>
 
     <style>
         * {
@@ -161,7 +161,7 @@ function displayPrice($price) {
             line-height: 1.6;
             color: #666;
         }
-        // redesign contact seller
+        /*redesign contact seller*/
         .contact-seller {
             margin-top: 40px;
             padding: 28px;
@@ -281,7 +281,7 @@ function displayPrice($price) {
 <body>
     <div class="container">
         <header>
-            <div class="logo">CarMarket</div>
+            <div class="logo">Blue Drive Car Market</div>
             <div class="nav-links">
                 <a href="seller-login.php">Seller Login</a>
                 <a href="add-car.php">Upload Car</a>
@@ -290,7 +290,6 @@ function displayPrice($price) {
         </header>
         
         <a href="search.php" class="back-link">← Back to Search</a>
-
         <?php if (!$car): ?>
             <div class="message-box">
                 <h2>Car Not Found</h2>

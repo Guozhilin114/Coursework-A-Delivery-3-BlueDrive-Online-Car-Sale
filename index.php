@@ -12,7 +12,7 @@ $bgImage = 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=r
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Used Car Marketplace</title>
+    <title>Blue Drive Car Market</title>
 
     <style>
         * {
@@ -193,18 +193,18 @@ $bgImage = 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=r
 
     <div class="logo">
         <img src="<?php echo $logoPath; ?>" alt="Lingshui Used Car Market Logo" class="logo-img">
-        Lingshui Used Car Market
+        Blue Drive Car Market
     </div>
 
     <div class="main-screen">
         <a href="<?php echo $searchPage; ?>" class="enter-button">
-            Enter Lingshui CarMarketplace
+            Enter Blue Drive Car Market
         </a>
     </div>
 
     <section class="introduction-section" id="introduction">
         <div class="introduction-content">
-            <h2 class="section-title">About Lingshui Used Car Market</h2>
+            <h2 class="section-title">About Blue Drive Car Market</h2>
             <div class="intro-text">
                 <div class="placeholder-text">
                     <p>Our website is a professional one-stop vehicle trading platform dedicated to providing safe,

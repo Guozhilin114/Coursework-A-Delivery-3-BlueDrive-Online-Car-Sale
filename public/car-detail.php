@@ -161,31 +161,89 @@ function displayPrice($price) {
             line-height: 1.6;
             color: #666;
         }
-        
+        // redesign contact seller
         .contact-seller {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
+            margin-top: 40px;
+            padding: 28px;
+            background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
         }
-        
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
         .contact-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
+            font-size: 24px;
+            font-weight: 700;
+            color: #222;
+            letter-spacing: -0.5px;
         }
-        
+
+        .contact-subtitle {
+            color: #777;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        .seller-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .seller-card {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #ececec;
+            transition: all 0.25s ease;
+        }
+
+        .seller-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .seller-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .seller-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222;
+            word-break: break-word;
+        }
+
         .contact-btn {
-            background-color: blue;
+            background: #111;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            transition: all 0.25s ease;
         }
+
+        .contact-btn:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
 
         .message-box {
             background: white;
@@ -306,12 +364,46 @@ function displayPrice($price) {
                 </div>
                 
                 <div class="contact-seller">
-                    <h2 class="contact-title">Contact Seller</h2>
-                    <p><strong>Seller Name:</strong> <?= h($car['full_name']) ?></p>
-                    <p><strong>Phone:</strong> <?= h($car['phone']) ?></p>
-                    <p><strong>Email:</strong> <?= h($car['email']) ?></p>
-                    <button class="contact-btn" onclick="showContactMessage()">Contact Seller</button>
+                    <div class="contact-header">
+                        <div>
+                            <h2 class="contact-title">Contact Seller</h2>
+                            <p class="contact-subtitle">
+                                Reach out to the seller for more details or a test drive.
+                            </p>
+                        </div>
+
+                        <button class="contact-btn" onclick="showContactMessage()">
+                            Contact Seller
+                        </button>
+                    </div>
+
+                    <div class="seller-info">
+
+                        <div class="seller-card">
+                            <div class="seller-label">Seller Name</div>
+                            <div class="seller-value">
+                                <?= h($car['full_name']) ?>
+                            </div>
+                        </div>
+
+                        <div class="seller-card">
+                            <div class="seller-label">Phone</div>
+                            <div class="seller-value">
+                                <?= h($car['phone']) ?>
+                            </div>
+                        </div>
+
+                        <div class="seller-card">
+                            <div class="seller-label">Email</div>
+                            <div class="seller-value">
+                                <?= h($car['email']) ?>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
         <?php endif; ?>
 

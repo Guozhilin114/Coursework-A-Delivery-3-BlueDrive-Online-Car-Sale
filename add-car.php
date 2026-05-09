@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+require_once __DIR__ . "/../includes/auth_check.php";
 require_once __DIR__ . "/../includes/db.php";
 
 if (!isset($_SESSION['seller_id'])) {
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploadDir = __DIR__ . '/../uploads/car_images/';
 
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+                mkdir($uploadDir, 0755, true);
             }
 
             $fileExtension = strtolower(pathinfo($_FILES['carImage']['name'], PATHINFO_EXTENSION));

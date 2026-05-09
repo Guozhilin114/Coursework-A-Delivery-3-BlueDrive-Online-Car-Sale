@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/includes/db.php';
+session_start();
+require_once __DIR__ . '/../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: seller-login.php");
@@ -38,14 +39,22 @@ try {
         exit();
     }
 
+    session_regenerate_id(true);
+
+    $_SESSION['seller_logged_in'] = true;
+    $_SESSION['seller_id'] = $seller['seller_id'];
+    $_SESSION['seller_username'] = $seller['username'];
+    $_SESSION['seller_name'] = $seller['full_name'];
+    $_SESSION['seller_email'] = $seller['email'];
+
     /*
-    Version 2 note:
-    The seller account is now checked from the database.
-    Password verification uses password_verify() because register.php stores hashed passwords.
-    Session handling and redirecting to the add-car/upload page will be added in Version 3.
+    Version 3:
+    Seller account is verified from the database.
+    Seller session is created after successful login.
+    Logout, auth_check, and final redirect will be added in the next version.
     */
 
-    header("Location: seller-login.php?status=verified");
+    header("Location: seller-login.php?status=session_created");
     exit();
 
 } catch (PDOException $e) {

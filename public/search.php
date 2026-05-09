@@ -40,7 +40,7 @@ function h($value) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Cars - Used Car Marketplace</title>
+    <title>Search Cars - Blue Drive Car Market</title>
 
     <style>
         * {
@@ -252,8 +252,8 @@ function h($value) {
     <div class="container">
         <header>
             <div class="logo">
-                <img src="../assets/images/logo.png" alt="Lingshui Used Car Logo">
-                Lingshui Used Car Market
+                <img src="../assets/images/logo.png" alt="Blue DriveDrive">
+                Blue Drive Car Market
             </div>
 
             <div class="nav-links">
@@ -265,7 +265,7 @@ function h($value) {
         </header>
 
         <div class="search-box">
-            <h1 class="search-title">Search Used Cars</h1>
+            <h1 class="search-title">Search Cars</h1>
 
             <form class="search-form" method="get" action="search.php">
                 <input 
@@ -327,7 +327,7 @@ function h($value) {
         </div>
 
         <footer>
-            &copy; 2026 Lingshui Used Car Market. All rights reserved.
+            &copy; Blue Drive Car Market. All rights reserved.
         </footer>
     </div>
 </body>
